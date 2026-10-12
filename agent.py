@@ -1,5 +1,5 @@
 import re
-
+import json
 import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
@@ -137,24 +137,26 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     try:
         steps += 1
         trace.check_iterations(steps)
-        parsed = parse_query(query)
-        session["parsed"] = parsed
-        trace.step("parse_query", inputs=query, returned=parsed)
+        session["parsed"] = parse_query(session["query"])
+        trace.step(
+            "parse_query",
+            inputs=session["query"],
+            returned=session["parsed"],
+)
 
         steps += 1
         trace.check_iterations(steps)
-        results = _search(parsed)
-        session["search_results"] = results
+        session["search_results"] = _search(session["parsed"])
         trace.step(
             "search_listings (via MCP)",
-            inputs=parsed,
-            returned=results,
-            note=f"{len(results)} match(es)",
+            inputs=session["parsed"],
+            returned=session["search_results"],
+            note=f"{len(session['search_results'])} match(es)",
         )
 
         # ── THE BRANCH ────────────────────────────────────────────────────────
-        if not results:
-            session["error"] = _nothing_found_message(parsed)
+        if not session["search_results"]:
+            session["error"] = _nothing_found_message(session["parsed"])
             trace.step(
                 "branch",
                 note="search returned []: stopping before suggest_outfit",
@@ -163,7 +165,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
 
         steps += 1
         trace.check_iterations(steps)
-        session["selected_item"] = results[0]
+        session["selected_item"] = session["search_results"][0]
         trace.step("select_item", returned=session["selected_item"])
 
         steps += 1
@@ -231,6 +233,7 @@ def _nothing_found_message(parsed: dict) -> str:
 # ── running it directly ───────────────────────────────────────────────────────
 
 def _show(session: dict) -> None:
+
     if session["error"]:
         print(f"  stopped: {session['error']}")
         print(f"  fit_card is {session['fit_card']!r} — it should still be None here")
