@@ -25,6 +25,7 @@ Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
 **Why this target:**
+Search results alone do not guarantee completion because outfit suggestions and fit cards depend on model calls that can fail. 4 of 5 was chosen to require reliable completion while allowing one unsuccessful run.
 <!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
@@ -37,6 +38,7 @@ Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
 **Why this target:**
+This branch uses a fixed Python condition and does not require a model response. I expect it to work 5 of 5 times because continuing without a matching item would produce an unsupported recommendation.
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
@@ -44,6 +46,7 @@ Given a query that matches no listings, the agent stops before calling
 
 ## 3. Something about state
 
+Across 5 runs where the search finds at least one listing, the agent, all 5 times, selects the first search result and passes item, wtih all its details unchanged, to the outfit suggestion tool. This is verified by recording the item received by the outfit tool and comparing it with the first search result.
 <!-- YOU WRITE THIS ONE.
 
      How would you know that the item your search found is the same item the
@@ -57,13 +60,14 @@ Given a query that matches no listings, the agent stops before calling
 
 
 **Why this target:**
-
+Passing the selected item is controlled by Python and should not vary between any of the 5 runs. Comparing the complete dictionaries catches changed or missing fields as well as selecting the wrong item.
 
 
 ---
 
 ## 4. Something about the fit card
 
+Given all calls to create_fit_card are successful and using five different listings and non-empty outfit suggestions, 4 of 5 returned captions contain two to four sentences and mention the correct item, price, and platform once each.
 <!-- YOU WRITE THIS ONE.
 
      The fit card calls a model, so the same input can produce different words
@@ -78,12 +82,14 @@ Given a query that matches no listings, the agent stops before calling
 
 
 **Why this target:**
-
+The model can produce captions differing in wording and still be useful with correct facts in each iteration. I chose 4 of 5 because formatting and instruction-following can vary, but more than one failure would make the captions unreliable.
 
 
 ---
 
 ## 5. Your choice
+
+5 of 5 search cases with different price ceilings, should have a returned listing that has a price less than or equal to their respective price ceilings. If available, include at least one case where a keyword-matching listing costs exactly the ceiling and fits within the result limit.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -95,7 +101,7 @@ Given a query that matches no listings, the agent stops before calling
 
 
 **Why this target:**
-
+Price filtering is a numerical comparison and should work every time. Checking an item priced exactly at the ceiling also confirms the limit is inclusive.
 
 
 ---
