@@ -39,9 +39,7 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
-
-
+**FitFindr** is an agent that aids in finding reasonable, complementing thrifts through a quick lookup. For example if someone asks for "a vintage graphic tee under $30, size M". The agent will take that input, use it to search against its listings and return items that match it, determines other items that would match with it, and writes a caption for it. This agent is also equipped with multiple tools listed below and acts by using different tools in different orders given the request and what is returned.
 
 ---
 
@@ -59,25 +57,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Finds clothing listings through keyword overlap, optionally filtering by size and max price, alongside case-insensitive size token matching so "M" matches "S/M", but "L" doesn't match "XL".
+- **Inputs:** description: str, size: str | None = None, max_price: float | None = None<!-- name and type each: `max_price` (float), not "a price" -->Description is required, while size and max price are not.
+- **Returns:** A list[dict] of matching listings ordered by keyword-overlap score, highest first. Each dictionary contains id, title, description, category, style_tags, size, condition, price, colors, brand, and platform, with brand possibly None.
+- **When it has nothing:** Returns an empty list when nothing matches — an empty list, not None, and not an exception.
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Given a thrifted item and the user's wardrobe, this calls the model to suggest one or two outfits.
+- **Inputs:** new_item: dict, containing a listing record; wardrobe: dict, containing an items key whose value is a list of wardrobe-item dictionaries.
+- **Returns:** A non-empty string with outfit suggestions.
+- **When it has nothing:** Returns general styling advice rather than raising or returning "".
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
-
+- **What it does:** Uses the model to write a short caption about the selected item and suggested outfit.
+- **Inputs:** outfit: str, containing the outfit suggestion; new_item: dict, containing the selected listing record.
+- **Returns:** A str containing a two-to-four-sentence caption that mentions the item, its price, its platform once each, and it describes the outfit’s vibe. It should return a slightly different caption even if the exact same item is selected and suggested outfit is produced.
+- **When it has nothing:** Returns a descriptive message.
 ---
 
 ## Planning Loop
@@ -93,7 +90,7 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule:** If search_listings returns an empty list, put a helpful message in session["error"] and stop without calling suggest_outfit or create_fit_card. Otherwise, store the first result in session["selected_item"] and pass that item and session["wardrobe"] to suggest_outfit.
 
 **Where it lives:** `agent.py::run_agent`
 
