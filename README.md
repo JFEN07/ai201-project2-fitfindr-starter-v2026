@@ -110,7 +110,683 @@
 **One full query**
 
 ```
-$ python app.py ask '...'
+python agent.py
+=== A query the data can match ===
+[1] parse_query
+      in:  looking for a vintage graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+=== Item received by suggest_outfit ===
+{
+  "id": "lst_002",
+  "title": "Y2K Baby Tee — Butterfly Print",
+  "description": "Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.",
+  "category": "tops",
+  "style_tags": [
+    "y2k",
+    "vintage",
+    "graphic tee",
+    "cottagecore"
+  ],
+  "size": "S/M",
+  "condition": "excellent",
+  "price": 18.0,
+  "colors": [
+    "white",
+    "pink",
+    "purple"
+  ],
+  "brand": null,
+  "platform": "depop"
+}
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Here are two outfit suggestions using the Y2K Baby Tee with Butterfly Print and pieces from your wardrobe:  **…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: I just scored this adorable Y2K Baby Tee with Butterfly Print on Depop for only $18, and it's giving major nos…
+=== Complete session ===
+{
+  "query": "looking for a vintage graphic tee under $30",
+  "parsed": {
+    "description": "looking for a vintage graphic tee",
+    "size": null,
+    "max_price": 30.0
+  },
+  "search_results": [
+    {
+      "id": "lst_002",
+      "title": "Y2K Baby Tee — Butterfly Print",
+      "description": "Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.",
+      "category": "tops",
+      "style_tags": [
+        "y2k",
+        "vintage",
+        "graphic tee",
+        "cottagecore"
+      ],
+      "size": "S/M",
+      "condition": "excellent",
+      "price": 18.0,
+      "colors": [
+        "white",
+        "pink",
+        "purple"
+      ],
+      "brand": null,
+      "platform": "depop"
+    },
+    {
+      "id": "lst_006",
+      "title": "Graphic Tee — 2003 Tour Bootleg Style",
+      "description": "Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.",
+      "category": "tops",
+      "style_tags": [
+        "graphic tee",
+        "vintage",
+        "grunge",
+        "streetwear",
+        "band tee"
+      ],
+      "size": "L",
+      "condition": "good",
+      "price": 24.0,
+      "colors": [
+        "black"
+      ],
+      "brand": null,
+      "platform": "depop"
+    },
+    {
+      "id": "lst_033",
+      "title": "Vintage Band Tee — Faded Grey",
+      "description": "Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.",
+      "category": "tops",
+      "style_tags": [
+        "vintage",
+        "grunge",
+        "band tee",
+        "graphic tee",
+        "streetwear"
+      ],
+      "size": "L",
+      "condition": "fair",
+      "price": 19.0,
+      "colors": [
+        "grey",
+        "charcoal"
+      ],
+      "brand": null,
+      "platform": "depop"
+    },
+    {
+      "id": "lst_015",
+      "title": "Vintage Graphic Hoodie — Faded Black",
+      "description": "Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.",
+      "category": "tops",
+      "style_tags": [
+        "vintage",
+        "grunge",
+        "graphic",
+        "streetwear"
+      ],
+      "size": "L",
+      "condition": "fair",
+      "price": 26.0,
+      "colors": [
+        "black",
+        "charcoal"
+      ],
+      "brand": null,
+      "platform": "depop"
+    },
+    {
+      "id": "lst_017",
+      "title": "Mesh Long-Sleeve Top — Black",
+      "description": "Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.",
+      "category": "tops",
+      "style_tags": [
+        "y2k",
+        "grunge",
+        "goth",
+        "layering"
+      ],
+      "size": "S/M",
+      "condition": "excellent",
+      "price": 15.0,
+      "colors": [
+        "black"
+      ],
+      "brand": null,
+      "platform": "depop"
+    },
+    {
+      "id": "lst_003",
+      "title": "Oversized Flannel Shirt — Plaid Red/Black",
+      "description": "Classic oversized flannel. Great layering piece. A few tiny pulls in the fabric but nothing visible when worn.",
+      "category": "tops",
+      "style_tags": [
+        "grunge",
+        "vintage",
+        "flannel",
+        "streetwear",
+        "layering"
+      ],
+      "size": "XL (oversized)",
+      "condition": "good",
+      "price": 22.0,
+      "colors": [
+        "red",
+        "black"
+      ],
+      "brand": "Woolrich",
+      "platform": "thredUp"
+    },
+    {
+      "id": "lst_011",
+      "title": "Low-Rise Cargo Pants — Khaki",
+      "description": "Y2K era low-rise cargo pants. Lots of pockets. Khaki color, slightly distressed at the hems. Great for layering with a long tee.",
+      "category": "bottoms",
+      "style_tags": [
+        "y2k",
+        "cargo",
+        "2000s",
+        "streetwear"
+      ],
+      "size": "W29",
+      "condition": "fair",
+      "price": 27.0,
+      "colors": [
+        "khaki",
+        "tan"
+      ],
+      "brand": null,
+      "platform": "poshmark"
+    },
+    {
+      "id": "lst_012",
+      "title": "Oversized Crewneck Sweatshirt — Vintage Navy",
+      "description": "Perfectly faded navy crewneck. Genuinely vintage — not manufactured distressed. Ribbed cuffs and hem. No graphics, clean.",
+      "category": "tops",
+      "style_tags": [
+        "vintage",
+        "basics",
+        "oversized",
+        "classic"
+      ],
+      "size": "XL (fits oversized)",
+      "condition": "good",
+      "price": 20.0,
+      "colors": [
+        "navy"
+      ],
+      "brand": null,
+      "platform": "thredUp"
+    },
+    {
+      "id": "lst_013",
+      "title": "90s Silk Slip Dress — Floral, Midi Length",
+      "description": "Delicate 90s slip dress in a muted floral print. Midi length, adjustable straps. Light snag on the side seam — not visible when worn.",
+      "category": "bottoms",
+      "style_tags": [
+        "90s",
+        "vintage",
+        "feminine",
+        "floral",
+        "cottagecore"
+      ],
+      "size": "M",
+      "condition": "good",
+      "price": 30.0,
+      "colors": [
+        "ivory",
+        "dusty pink",
+        "green"
+      ],
+      "brand": null,
+      "platform": "depop"
+    },
+    {
+      "id": "lst_014",
+      "title": "Leather Belt — Brown, Braided",
+      "description": "Genuine leather braided belt. Adjustable, multiple holes. Classic Western buckle. Can be dressed up or down.",
+      "category": "accessories",
+      "style_tags": [
+        "vintage",
+        "western",
+        "classic",
+        "earth tones"
+      ],
+      "size": "One Size (adjustable)",
+      "condition": "excellent",
+      "price": 12.0,
+      "colors": [
+        "brown"
+      ],
+      "brand": null,
+      "platform": "thredUp"
+    }
+  ],
+  "selected_item": {
+    "id": "lst_002",
+    "title": "Y2K Baby Tee — Butterfly Print",
+    "description": "Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.",
+    "category": "tops",
+    "style_tags": [
+      "y2k",
+      "vintage",
+      "graphic tee",
+      "cottagecore"
+    ],
+    "size": "S/M",
+    "condition": "excellent",
+    "price": 18.0,
+    "colors": [
+      "white",
+      "pink",
+      "purple"
+    ],
+    "brand": null,
+    "platform": "depop"
+  },
+  "wardrobe": {
+    "items": [
+      {
+        "id": "w_001",
+        "name": "Baggy straight-leg jeans, dark wash",
+        "category": "bottoms",
+        "colors": [
+          "dark blue",
+          "indigo"
+        ],
+        "style_tags": [
+          "denim",
+          "streetwear",
+          "baggy"
+        ],
+        "notes": "High-waisted, sits above the hip"
+      },
+      {
+        "id": "w_002",
+        "name": "Wide-leg khaki trousers",
+        "category": "bottoms",
+        "colors": [
+          "khaki",
+          "tan"
+        ],
+        "style_tags": [
+          "earth tones",
+          "minimal",
+          "wide-leg"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_003",
+        "name": "White ribbed tank top",
+        "category": "tops",
+        "colors": [
+          "white"
+        ],
+        "style_tags": [
+          "basics",
+          "minimal",
+          "fitted"
+        ],
+        "notes": "Goes with everything"
+      },
+      {
+        "id": "w_004",
+        "name": "Oversized grey crewneck sweatshirt",
+        "category": "tops",
+        "colors": [
+          "grey",
+          "charcoal"
+        ],
+        "style_tags": [
+          "oversized",
+          "basics",
+          "cozy"
+        ],
+        "notes": "Really oversized — drops below the hip"
+      },
+      {
+        "id": "w_005",
+        "name": "Black cropped zip hoodie",
+        "category": "tops",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "athletic",
+          "streetwear",
+          "cropped"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_006",
+        "name": "Vintage black denim jacket",
+        "category": "outerwear",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "denim",
+          "vintage",
+          "classic"
+        ],
+        "notes": "Slightly cropped"
+      },
+      {
+        "id": "w_007",
+        "name": "Chunky white sneakers",
+        "category": "shoes",
+        "colors": [
+          "white"
+        ],
+        "style_tags": [
+          "sneakers",
+          "chunky",
+          "streetwear"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_008",
+        "name": "Black combat boots",
+        "category": "shoes",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "boots",
+          "grunge",
+          "classic"
+        ],
+        "notes": "Lace-up, mid-ankle height"
+      },
+      {
+        "id": "w_009",
+        "name": "Brown leather belt",
+        "category": "accessories",
+        "colors": [
+          "brown"
+        ],
+        "style_tags": [
+          "classic",
+          "earth tones",
+          "accessories"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_010",
+        "name": "Black crossbody bag",
+        "category": "accessories",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "minimal",
+          "accessories",
+          "everyday"
+        ],
+        "notes": null
+      }
+    ]
+  },
+  "outfit_suggestion": "Here are two outfit suggestions using the Y2K Baby Tee with Butterfly Print and pieces from your wardrobe:\n\n**Outfit 1: Classic Y2K Streetwear**\n* New item: Y2K Baby Tee — Butterfly Print\n* Wardrobe pieces used: Baggy straight-leg jeans (w_001), vintage black denim jacket (w_006), chunky white sneakers (w_007), black crossbody bag (w_010)\n\n*Why it works:* This combination plays on the classic Y2K proportion contrast—a fitted, cropped baby tee paired with high-waisted, baggy straight-leg jeans. Adding the slightly cropped black denim jacket and chunky white sneakers leans fully into the vintage streetwear aesthetic while keeping the look balanced and cohesive.\n\n**Outfit 2: Casual Edge**\n* New item: Y2K Baby Tee — Butterfly Print\n* Wardrobe pieces used: Wide-leg khaki trousers (w_002), black cropped zip hoodie (w_005), black combat boots (w_008), brown leather belt (w_009), black crossbody bag (w_010)\n\n*Why it works:* Pairing the sweet, pink-and-purple butterfly tee with wide-leg khaki trousers creates a cool mix of earthy tones and playful Y2K graphics. Layering the black cropped zip hoodie over top (or wearing it unzipped) alongside black combat boots grounds the lighter pastel tones of the baby tee with a bit of grunge edge.",
+  "fit_card": "I just scored this adorable Y2K Baby Tee with Butterfly Print on Depop for only $18, and it's giving major nostalgic vibes! I'm planning to style it with baggy straight-leg jeans and a vintage denim jacket for the ultimate classic Y2K streetwear look.",
+  "error": null
+}
+  found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+  outfit:   Here are two outfit suggestions using the Y2K Baby Tee with Butterfly Print and pieces from your wardrobe:
+
+**Outfit 1: Classic Y2K Streetwear**
+* New item: Y2K Baby Tee — Butterfly Print
+* Wardrobe pieces used: Baggy straight-leg jeans (w_001), vintage black denim jacket (w_006), chunky white sneakers (w_007), black crossbody bag (w_010)
+
+*Why it works:* This combination plays on the classic Y2K proportion contrast—a fitted, cropped baby tee paired with high-waisted, baggy straight-leg jeans. Adding the slightly cropped black denim jacket and chunky white sneakers leans fully into the vintage streetwear aesthetic while keeping the look balanced and cohesive.
+
+**Outfit 2: Casual Edge**
+* New item: Y2K Baby Tee — Butterfly Print
+* Wardrobe pieces used: Wide-leg khaki trousers (w_002), black cropped zip hoodie (w_005), black combat boots (w_008), brown leather belt (w_009), black crossbody bag (w_010)
+
+*Why it works:* Pairing the sweet, pink-and-purple butterfly tee with wide-leg khaki trousers creates a cool mix of earthy tones and playful Y2K graphics. Layering the black cropped zip hoodie over top (or wearing it unzipped) alongside black combat boots grounds the lighter pastel tones of the baby tee with a bit of grunge edge.
+  fit card: I just scored this adorable Y2K Baby Tee with Butterfly Print on Depop for only $18, and it's giving major nostalgic vibes! I'm planning to style it with baggy straight-leg jeans and a vintage denim jacket for the ultimate classic Y2K streetwear look.
+
+=== A query it can't ===
+[6] parse_query
+      in:  designer ballgown size XXS under $5
+      out: dict with keys: description, size, max_price
+[7] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[8] branch
+      →    search returned []: stopping before suggest_outfit
+=== Complete session ===
+{
+  "query": "designer ballgown size XXS under $5",
+  "parsed": {
+    "description": "designer ballgown",
+    "size": "XXS",
+    "max_price": 5.0
+  },
+  "search_results": [],
+  "selected_item": null,
+  "wardrobe": {
+    "items": [
+      {
+        "id": "w_001",
+        "name": "Baggy straight-leg jeans, dark wash",
+        "category": "bottoms",
+        "colors": [
+          "dark blue",
+          "indigo"
+        ],
+        "style_tags": [
+          "denim",
+          "streetwear",
+          "baggy"
+        ],
+        "notes": "High-waisted, sits above the hip"
+      },
+      {
+        "id": "w_002",
+        "name": "Wide-leg khaki trousers",
+        "category": "bottoms",
+        "colors": [
+          "khaki",
+          "tan"
+        ],
+        "style_tags": [
+          "earth tones",
+          "minimal",
+          "wide-leg"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_003",
+        "name": "White ribbed tank top",
+        "category": "tops",
+        "colors": [
+          "white"
+        ],
+        "style_tags": [
+          "basics",
+          "minimal",
+          "fitted"
+        ],
+        "notes": "Goes with everything"
+      },
+      {
+        "id": "w_004",
+        "name": "Oversized grey crewneck sweatshirt",
+        "category": "tops",
+        "colors": [
+          "grey",
+          "charcoal"
+        ],
+        "style_tags": [
+          "oversized",
+          "basics",
+          "cozy"
+        ],
+        "notes": "Really oversized — drops below the hip"
+      },
+      {
+        "id": "w_005",
+        "name": "Black cropped zip hoodie",
+        "category": "tops",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "athletic",
+          "streetwear",
+          "cropped"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_006",
+        "name": "Vintage black denim jacket",
+        "category": "outerwear",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "denim",
+          "vintage",
+          "classic"
+        ],
+        "notes": "Slightly cropped"
+      },
+      {
+        "id": "w_007",
+        "name": "Chunky white sneakers",
+        "category": "shoes",
+        "colors": [
+          "white"
+        ],
+        "style_tags": [
+          "sneakers",
+          "chunky",
+          "streetwear"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_008",
+        "name": "Black combat boots",
+        "category": "shoes",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "boots",
+          "grunge",
+          "classic"
+        ],
+        "notes": "Lace-up, mid-ankle height"
+      },
+      {
+        "id": "w_009",
+        "name": "Brown leather belt",
+        "category": "accessories",
+        "colors": [
+          "brown"
+        ],
+        "style_tags": [
+          "classic",
+          "earth tones",
+          "accessories"
+        ],
+        "notes": null
+      },
+      {
+        "id": "w_010",
+        "name": "Black crossbody bag",
+        "category": "accessories",
+        "colors": [
+          "black"
+        ],
+        "style_tags": [
+          "minimal",
+          "accessories",
+          "everyday"
+        ],
+        "notes": null
+      }
+    ]
+  },
+  "outfit_suggestion": null,
+  "fit_card": null,
+  "error": "Nothing in the listings matched description 'designer ballgown', size XXS, under $5.\nThings to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5."
+}
+  stopped: Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+  fit_card is None — it should still be None here
+
+The second one should stop before the fit card. If both paths look the same,
+the branch isn't doing anything yet.
+(.venv) PS C:\Users\fenne\ai201-project2-fitfindr-starter-v2026> python agent.py
+=== A query the data can match ===
+[1] parse_query
+      in:  looking for a vintage graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: **Outfit 1: Y2K Streetwear** * New Item: Y2K Baby Tee — Butterfly Print * Wardrobe Pieces: Baggy straight-leg …
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Just scored this adorable Y2K butterfly baby tee on Depop for only $18, and I am obsessed! I'm styling it with…
+  found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+  outfit:   **Outfit 1: Y2K Streetwear**
+* New Item: Y2K Baby Tee — Butterfly Print
+* Wardrobe Pieces: Baggy straight-leg jeans, dark wash (w_001), Vintage black denim jacket (w_006), Chunky white sneakers (w_007), Black crossbody bag (w_010)
+
+*Why it works:* This outfit leans fully into the Y2K aesthetic. The fitted crop of the baby tee balances the volume of the high-waisted, baggy dark-wash jeans. Layering the slightly cropped black denim jacket adds a cool vintage edge while keeping the silhouette balanced, and the chunky sneakers and crossbody bag tie the retro streetwear vibe together.
+
+**Outfit 2: Casual Contrast**
+* New Item: Y2K Baby Tee — Butterfly Print
+* Wardrobe Pieces: Wide-leg khaki trousers (w_002), Black combat boots (w_008), Brown leather belt (w_009)
+
+*Why it works:* This look creates a fun contrast by mixing the feminine, pastel Y2K baby tee with earth-toned, minimalist trousers. Tucking the tee in and defining the waist with the brown belt anchors the outfit, while the black combat boots add an unexpected grunge twist that grounds the lighter top and tan bottoms.
+  fit card: Just scored this adorable Y2K butterfly baby tee on Depop for only $18, and I am obsessed! I'm styling it with baggy dark-wash jeans, a black denim jacket, and chunky sneakers for the ultimate retro streetwear vibe.
+
+=== A query it can't ===
+[6] parse_query
+      in:  designer ballgown size XXS under $5
+      out: dict with keys: description, size, max_price
+[7] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[8] branch
+      →    search returned []: stopping before suggest_outfit
+  stopped: Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+  fit_card is None — it should still be None here
+
+The second one should stop before the fit card. If both paths look the same,
+the branch isn't doing anything yet.
 
 ```
 
@@ -311,15 +987,15 @@ Cannot create a fit card because no outfit suggestion was provided.
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked ChatGPT how to make the search results easier to read because printing the list put all the listings together.
+- *What came back:* It suggested printing listings separately or using json.dumps() with indentation to display each field on its own line.
+- *What I changed:* I changed my per-tool terminal test to display formatted JSON. I kept the search tool returning a list of dictionaries so the agent could still use the results.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I shared my agent code and asked where to make changes for the milestone about session state.
+- *What came back:* ChatGPT identified places where the agent used local variables instead of reading stored session values. It also suggested temporarily printing the item received by the outfit tool.
+- *What I changed:* I updated the search, branch, and selection steps to read from the session. I added temporary prints and compared the received item with the selected item; both contained the same complete listing. After checking, I removed the temporary item prints and kept the complete-session display.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
