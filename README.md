@@ -94,9 +94,9 @@
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** The parse_query uses regular expressions, without calling the model, to extract a size and maximum price. It removes the matched portions from the query and uses the remaining text as the description. An unrecognized or unspecified size or price becomes None.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** The session starts with the original query and the supplied wardrobe. The extracted description, size, and maximum price are stored in parsed, followed by the matching listings in search_results. If no listings match, a message is stored in error and the run stops. Otherwise, the first result is stored in selected_item, which is passed with wardrobe to the outfit tool. Its response is stored in outfit_suggestion, then passed with the selected item to the fit-card tool. The resulting caption is stored in fit_card, and the completed session is returned. If a model call raises ModelUnavailable, the agent records a message in error and returns the session with the results collected so far.
 
 ---
 
@@ -114,21 +114,188 @@ $ python app.py ask '...'
 
 ```
 
+
 **The three tools, tested one at a time**
 
+*search_listings*
 ```
-$ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
+python -c "import json; from tools import search_listings; print(json.dumps(search_listings('graphic tee', max_price=30), indent=2, ensure_ascii=False))"
+[
+  {
+    "id": "lst_002",
+    "title": "Y2K Baby Tee — Butterfly Print",
+    "description": "Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.",
+    "category": "tops",
+    "style_tags": [
+      "y2k",
+      "vintage",
+      "graphic tee",
+      "cottagecore"
+    ],
+    "size": "S/M",
+    "condition": "excellent",
+    "price": 18.0,
+    "colors": [
+      "white",
+      "pink",
+      "purple"
+    ],
+    "brand": null,
+    "platform": "depop"
+  },
+  {
+    "id": "lst_006",
+    "title": "Graphic Tee — 2003 Tour Bootleg Style",
+    "description": "Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.",
+    "category": "tops",
+    "style_tags": [
+      "graphic tee",
+      "vintage",
+      "grunge",
+      "streetwear",
+      "band tee"
+    ],
+    "size": "L",
+    "condition": "good",
+    "price": 24.0,
+    "colors": [
+      "black"
+    ],
+    "brand": null,
+    "platform": "depop"
+  },
+  {
+    "id": "lst_017",
+    "title": "Mesh Long-Sleeve Top — Black",
+    "description": "Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.",
+    "category": "tops",
+    "style_tags": [
+      "y2k",
+      "grunge",
+      "goth",
+      "layering"
+    ],
+    "size": "S/M",
+    "condition": "excellent",
+    "price": 15.0,
+    "colors": [
+      "black"
+    ],
+    "brand": null,
+    "platform": "depop"
+  },
+  {
+    "id": "lst_033",
+    "title": "Vintage Band Tee — Faded Grey",
+    "description": "Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.",
+    "category": "tops",
+    "style_tags": [
+      "vintage",
+      "grunge",
+      "band tee",
+      "graphic tee",
+      "streetwear"
+    ],
+    "size": "L",
+    "condition": "fair",
+    "price": 19.0,
+    "colors": [
+      "grey",
+      "charcoal"
+    ],
+    "brand": null,
+    "platform": "depop"
+  },
+  {
+    "id": "lst_011",
+    "title": "Low-Rise Cargo Pants — Khaki",
+    "description": "Y2K era low-rise cargo pants. Lots of pockets. Khaki color, slightly distressed at the hems. Great for layering with a long tee.",
+    "category": "bottoms",
+    "style_tags": [
+      "y2k",
+      "cargo",
+      "2000s",
+      "streetwear"
+    ],
+    "size": "W29",
+    "condition": "fair",
+    "price": 27.0,
+    "colors": [
+      "khaki",
+      "tan"
+    ],
+    "brand": null,
+    "platform": "poshmark"
+  },
+  {
+    "id": "lst_015",
+    "title": "Vintage Graphic Hoodie — Faded Black",
+    "description": "Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.",
+    "category": "tops",
+    "style_tags": [
+      "vintage",
+      "grunge",
+      "graphic",
+      "streetwear"
+    ],
+    "size": "L",
+    "condition": "fair",
+    "price": 26.0,
+    "colors": [
+      "black",
+      "charcoal"
+    ],
+    "brand": null,
+    "platform": "depop"
+  }
+]
 
 ```
 
+*search_listings empty case*
 ```
-$ python -c "from tools import suggest_outfit; ..."
-
+python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=-1))"
+[]
 ```
 
+*suggest_outfit*
 ```
-$ python -c "from tools import create_fit_card; ..."
+python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
+Outfit 1: Casual Streetwear
+- New Item: Vintage Levi's 501 Jeans (Medium Wash)
+- Wardrobe Pieces: White ribbed tank top (w_003), Oversized grey crewneck sweatshirt (w_004), Chunky white sneakers (w_007), Black crossbody bag (w_010)
+- Why it works: This is an effortless, balanced everyday look. The fitted white tank contrasts nicely with the roomier fit of the 501s. Layering the oversized grey crewneck on top creates a classic, comfortable streetwear silhouette, while the chunky white sneakers and black crossbody bag tie the casual aesthetic together.
 
+Outfit 2: Edgy Vintage
+- New Item: Vintage Levi's 501 Jeans (Medium Wash)
+- Wardrobe Pieces: Black cropped zip hoodie (w_005), Vintage black denim jacket (w_006), Black combat boots (w_008), Brown leather belt (w_009)
+- Why it works: This combination plays on proportions and textures. Tucking in a top with the brown leather belt highlights the waist of the classic 501s. Pairing a black cropped zip hoodie under a slightly cropped black denim jacket creates a cool, layered top half that is grounded by the edgy black combat boots.
+```
+
+*suggest_outfit empty case*
+```
+python -c "from tools import suggest_outfit; from utils.data_loader import get_empty_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_empty_wardrobe()))"
+Style these vintage Levi's 501s with a tucked-in white ribbed tank top or a vintage band tee for a classic, effortless look. Layer with an oversized black leather biker jacket or a brown suede blazer. Complete the outfit with retro sneakers like Adidas Sambas or black leather loafers, and accessorize with a simple black leather belt and silver hoop earrings.
+```
+
+*create_fit_card*
+```
+python -c "from tools import create_fit_card; from utils.data_loader import load_listings; item = load_listings()[0]; [print(f'\nRun {i + 1}:\n', create_fit_card('jeans and white sneakers', item)) for i in range(3)]"
+
+Run 1:
+ Found these classic Vintage Levi's 501 Jeans and they are officially my new favorite pair. They're listed on Depop for just $38.00 and have the best lived-in look. Throw them on with some fresh white sneakers for the ultimate effortless, everyday vibe.
+
+Run 2:
+ Just listed these vintage Levi's 501 jeans on Depop for $38.0, and they have the best broken-in medium wash with light knee fading. Throw them on with some fresh white sneakers for that effortlessly cool, everyday streetwear vibe. Grab them before they're gone!
+
+Run 3:
+ Scored these vintage Levi's 501 jeans on Depop for just $38, and I am obsessed with the medium wash and knee fading. I'm styling them with crisp white sneakers for that effortlessly cool, casual weekend look. Grab them before I change my mind!
+```
+
+*create_fit_card empty case*
+```
+python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('', load_listings()[0]))"
+Cannot create a fit card because no outfit suggestion was provided.
 ```
 
 ---
