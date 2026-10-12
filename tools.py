@@ -27,6 +27,40 @@ from utils.data_loader import load_listings
 
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
 
+stop_words = dict.fromkeys([
+    "a", "an", "the", "and", "or", "but", "if", "then",
+    "as", "at", "by", "for", "from", "in", "into", "of",
+    "on", "to", "with", "about", "above", "below", "between",
+    "through", "during", "before", "after", "over", "under",
+    "is", "am", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did",
+    "i", "me", "my", "we", "us", "our", "you", "your",
+    "he", "him", "his", "she", "her", "it", "its",
+    "they", "them", "their", "this", "that", "these", "those",
+    "what", "which", "who", "whom", "when", "where", "why", "how",
+    "all", "any", "both", "each", "few", "more", "most",
+    "other", "some", "such", "only", "own", "same",
+    "so", "than", "too", "very", "can", "will", "just"
+], True)
+
+def keywords(text: str) -> set[str]:
+    """Lowercase words worth matching on, stopwords removed. """
+    words = re.findall(r"[a-z0-9]+", (text or "").lower())
+    return {w for w in words if w not in stop_words and len(w) > 1}
+
+def size_tokens(size: str) -> set[str]:
+    cleaned = re.sub(r"\([^)]*\)", " ", size or "") # drop parentheticals
+    parts = [p.strip(). upper for p in cleaned.split("/")]
+    return {p for p in parts if p}
+
+def size_matches(wanted: str, listing_size: str) -> bool:
+    if not wanted:
+        return True
+    listing_tokens = size_tokens(listing_size)
+    if any(token.startswith("ONE SIZE") for token in listing_tokens):
+        return True
+    return bool(size_tokens(wanted) & listing_tokens)
+
 def search_listings(
     description: str,
     size: str | None = None,
