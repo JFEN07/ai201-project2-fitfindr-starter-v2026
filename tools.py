@@ -23,6 +23,8 @@ the description has to say what is *in* the list.
 import config  # noqa: F401 — you'll use this in search_listings
 from generate import generate
 from utils.data_loader import load_listings
+import json
+import re
 
 
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
@@ -46,19 +48,27 @@ stop_words = dict.fromkeys([
 def keywords(text: str) -> set[str]:
     """Lowercase words worth matching on, stopwords removed. """
     words = re.findall(r"[a-z0-9]+", (text or "").lower())
-    return {w for w in words if w not in stop_words and len(w) > 1}
+    return {
+        word for word in words 
+        if word not in stop_words and len(word) > 1
+        }
 
 def size_tokens(size: str) -> set[str]:
     cleaned = re.sub(r"\([^)]*\)", " ", size or "") # drop parentheticals
-    parts = [p.strip(). upper for p in cleaned.split("/")]
-    return {p for p in parts if p}
+    return {
+        part.strip().upper()
+        for part in cleaned.split("/")
+        if part.strip()
+    }
 
 def size_matches(wanted: str, listing_size: str) -> bool:
     if not wanted:
         return True
+    
     listing_tokens = size_tokens(listing_size)
     if any(token.startswith("ONE SIZE") for token in listing_tokens):
         return True
+    
     return bool(size_tokens(wanted) & listing_tokens)
 
 def search_listings(
@@ -112,8 +122,40 @@ def search_listings(
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
     """
-    # TODO: replace this with your implementation
-    return []
+    wanted_words = keywords(description)
+    scored_listings = []
+
+    for listing in load_listings():
+        # Skip listings above the requested budget.
+        if max_price is not None and listing["price"] > max_price:
+            continue
+
+        # Skip listings that do not match the requested size.
+        if not size_matches(size, listing.get("size", "")):
+            continue
+
+        # Collect searchable text, handling a missing brand.
+        searchable_text = " ".join([
+            listing.get("title") or "",
+            listing.get("description") or "",
+            listing.get("category") or "",
+            listing.get("brand") or "",
+            " ".join(listing.get("style_tags") or []),
+            " ".join(listing.get("colors") or []),
+        ])
+
+        listing_words = keywords(searchable_text)
+        score = len(wanted_words & listing_words)
+
+        if score > 0:
+            scored_listings.append((score, listing))
+
+    scored_listings.sort(key=lambda pair: pair[0], reverse=True)
+
+    return [
+        listing
+        for score, listing in scored_listings[:config.SEARCH_RESULT_LIMIT]
+    ]
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
@@ -146,8 +188,45 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+
+    items = wardrobe.get("items") or []
+
+    item_details = json.dumps(new_item, ensure_ascii=False)
+
+    if not items:
+        prompt = f"""
+Suggest one or two ways to style this clothing item.
+
+Item:
+{item_details}
+
+The user has provided an empty wardrobe.
+Give general styling advice, including suggested complementary
+pieces, colors, and shoes.
+Do not claim the user already owns any suggested pieces.
+Return concise, practical advice as plain text.
+"""
+    else:
+        wardrobe_details = json.dumps(items, ensure_ascii=False)
+
+        prompt = f"""
+Suggest one or two outfits using this new clothing item
+and pieces from the user's wardrobe.
+
+New item:
+{item_details}
+
+User's wardrobe:
+{wardrobe_details}
+
+Name the wardrobe pieces used in each outfit.
+Use only the supplied wardrobe pieces as owned clothing.
+Include the new item in each outfit.
+Explain briefly why the combinations work.
+Return concise, practical suggestions as plain text.
+"""
+
+    return generate(prompt)
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
@@ -186,5 +265,33 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    if not outfit or not outfit.strip():
+        return (
+            "Cannot create a fit card because no outfit "
+            "suggestion was provided."
+        )
+
+    item_details = json.dumps(new_item, ensure_ascii=False)
+
+    prompt = f"""
+Write a casual social-post caption about this clothing find
+and the suggested outfit.
+
+Item:
+{item_details}
+
+Outfit suggestion:
+{outfit}
+
+Requirements:
+- Write two to four sentences.
+- Mention the item once, using its title or a clear shortened name.
+- Mention its exact price once, formatted with a dollar sign.
+- Mention its platform once.
+- Describe the outfit's specific vibe.
+- Use a natural personal tone.
+- Do not invent purchases, discounts, or details.
+- Return only the caption, without a heading.
+"""
+
+    return generate(prompt)
