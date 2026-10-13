@@ -1079,13 +1079,123 @@ that produced it:
 **Happy path**
 
 ```
+python app.py ask 'vintage graphic tee under $30' --trace
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] MCP search succeeded
+      →    Search results received from the MCP tool.
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[4] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[5] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Outfit 1: Y2K Streetwear Contrast - New item: Y2K Baby Tee — Butterfly Print - Wardrobe pieces: Baggy straight…
+      →    10 wardrobe item(s)
+[6] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Just scored this adorable Y2K Butterfly Print Baby Tee on Depop for only $18, and I am obsessed! I'm styling i…
 
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   Outfit 1: Y2K Streetwear Contrast
+- New item: Y2K Baby Tee — Butterfly Print
+- Wardrobe pieces: Baggy straight-leg jeans (w_001), Vintage black denim jacket (w_006), Chunky white sneakers (w_007), Black crossbody bag (w_010)
+
+Why it works: The fitted crop of the butterfly baby tee balances the volume of the high-waisted baggy jeans, nailing the classic 2000s silhouette. Layering the slightly cropped black denim jacket adds edge while keeping the proportions balanced, and the chunky sneakers and crossbody bag tie the streetwear theme together effortlessly.
+
+
+Outfit 2: Casual Grunge Mix
+- New item: Y2K Baby Tee — Butterfly Print
+- Wardrobe pieces: Wide-leg khaki trousers (w_002), Black cropped zip hoodie (w_005), Black combat boots (w_008), Brown leather belt (w_009)
+
+Why it works: This outfit plays on a sweet-meets-edgy juxtaposition. The feminine, pastel butterfly print pops against the earthy khaki trousers and tough black combat boots. Wearing the black cropped zip hoodie either open or layered over the baby tee adds an effortless, grunge-leaning Y2K vibe, accented subtly by the brown belt.
+
+  Fit card: Just scored this adorable Y2K Butterfly Print Baby Tee on Depop for only $18, and I am obsessed! I'm styling it with baggy straight-leg jeans, a vintage black denim jacket, and chunky sneakers for the ultimate 2000s streetwear contrast.
+
+2 model calls this session, 1311 prompt + 337 output tokens
 ```
 
 **Empty search**
 
 ```
+python app.py ask 'nonexistentitem' --trace
+[1] parse_query
+      in:  nonexistentitem
+      out: dict with keys: description, size, max_price
+[2] MCP search succeeded
+      →    Search results received from the MCP tool.
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[4] branch
+      →    search returned []: stopping before suggest_outfit
 
+  Nothing in the listings matched description 'nonexistentitem'.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'.
+
+0 model calls this session
+```
+
+**Empty Wardrobe**
+
+```
+ python app.py ask 'graphic tee under $30' --empty-wardrobe --trace
+(running with an empty wardrobe)
+[1] parse_query
+      in:  graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] MCP search succeeded
+      →    Search results received from the MCP tool.
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 6 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Mesh Long-Sleeve Top — Black … +3 more
+      →    6 match(es)
+[4] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[5] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Pair this Y2K butterfly baby tee with a low-rise pleated denim miniskirt or baggy cargo pants to lean into the…
+      →    0 wardrobe item(s)
+[6] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Obsessed with this Y2K Baby Tee — Butterfly Print, and it's up on my Depop right now for just $18.00! I'm pict…
+
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   Pair this Y2K butterfly baby tee with a low-rise pleated denim miniskirt or baggy cargo pants to lean into the early 2000s aesthetic. Complement the pink and purple tones in the graphic with pastel accessories, a shoulder bag, and platform sandals or retro sneakers.
+
+  Fit card: Obsessed with this Y2K Baby Tee — Butterfly Print, and it's up on my Depop right now for just $18.00! I'm picturing it styled with a low-rise pleated denim miniskirt or baggy cargo pants for the ultimate early 2000s streetwear vibe. Add some pastel accessories and platform sandals to really play up those pink and purple tones!
+
+2 model calls this session, 503 prompt + 143 output tokens
+```
+
+**Model Unavailable**
+
+```
+python app.py ask 'butterfly baby tee under $29' --trace
+[1] parse_query
+      in:  butterfly baby tee under $29
+      out: dict with keys: description, size, max_price
+[2] MCP search succeeded
+      →    Search results received from the MCP tool.
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 5 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Low-Rise Cargo Pants — Khaki … +2 more
+      →    5 match(es)
+[4] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[5] model unavailable
+      →    stopping, search results kept
+
+  The model couldn't be reached, so the outfit and caption steps didn't run. The search worked — 5 listing(s) were found. Check GEMINI_API_KEY in your .env, then run the same query again.
+What the service said: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.
+
+1 model calls this session
 ```
 
 **On the MCP move:** <!-- what changed in your code, and whether anything
