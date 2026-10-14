@@ -212,6 +212,39 @@ def write_report(rows, args):
 
             session = record["session"] or {}
             item = session.get("selected_item") or {}
+
+            if scenario.get("criterion") == 3:
+                results = session.get("search_results") or []
+                received = record.get("outfit_tool_received_items", [])
+
+                first_result = results[0] if results else None
+                selected = session.get("selected_item")
+
+                matches = (
+                    first_result is not None
+                    and len(received) == 1
+                    and first_result == selected == received[0]
+                )
+
+                evidence = {
+                    "first_search_result": first_result,
+                    "selected_item": selected,
+                    "items_received_by_outfit_tool": received,
+                    "all_details_match": matches,
+                }
+
+                lines += [
+                    "Criterion 3 evidence:",
+                    "",
+                    "- Recorded by: `run_eval.py::run_once`",
+                    "- Compared by: `run_eval.py::write_report`",
+                    "",
+                    "```json",
+                    json.dumps(evidence, indent=2, ensure_ascii=False),
+                    "```",
+                    "",
+                ]
+
             lines += [
                 f"- stopped early: {'yes — ' + str(session.get('error')) if session.get('error') else 'no'}",
                 f"- selected_item: {item.get('title', '(none)')}"
