@@ -1135,15 +1135,21 @@ Search implementation: tools.py::search_listings, called through MCP
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Matching query completes all three tools and returns a fit card | 4 of 5 | MET (5/5) | All five traces show search, outfit suggestion, and fit-card creation completing, with a non-empty caption returned. |
+| 2 | Empty search stops before the outfit tool and names what to change | 5 of 5 | MET (5/5) | All five runs returned no listings, stopped before the outfit tool, and suggested changes to the search words, size, or budget. |
+| 3 | First search result reaches the outfit tool with all details unchanged | 5 of 5 | MISSED (0/5 verified) | The traces show matching item summaries, but none recorded the complete argument received inside the outfit tool. I counted these as failures to demonstrate the requirement. |
+| 4 | Five different listings produce captions with 2–4 sentences and the correct item, price, and platform once each | 4 of 5 | MET (5/5) | The five selected listings differ. Each caption contains 2–3 sentences and mentions the correct item, price, and platform once, accepting clear shortened item names and equivalent price formats. |
+| 5 | Five searches with different price ceilings return a listing within their respective budgets | 5 of 5 | MET (5/5) | Each selected listing costs $18, within ceilings of $18, $19, $24, $27, and $30. The first try also returns an item priced exactly at the ceiling. |
 
 **Diagnoses**
+*Criterion 3 — Missing evidence at the session-to-tool handoff.*
+The affected step is passing the selected item to the outfit suggestion tool. The trace summarizes the item using its title, price, and platform, but does not record the complete dictionary received inside the tool. This same evidence gap occurs in all five tries. It prevents verification of unchanged fields; it does not demonstrate that the agent passed the wrong item. The improvement is to capture a copy of the actual received argument and compare it with the first search result and selected item.
 
+*Pattern across the misses.*
+All five criterion 3 failures come from the same recording limitation, rather than five separate tool failures. Improving the evaluator’s evidence would make this requirement checkable without changing the item-selection behavior.
 
+*Limitations of the criteria that passed.*
+Criterion 5 is weaker than the intended because it requires a returned listing within budget rather than every returned listing. The current report verifies the selected item’s price, but doesn't show every result’s price. A stronger test would record all returned prices and require every one to be within the budget.
 
 ---
 
