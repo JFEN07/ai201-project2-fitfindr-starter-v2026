@@ -1017,17 +1017,100 @@ Cannot create a fit card because no outfit suggestion was provided.
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. matching query completes | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. selected item reaches outfit tool unchanged | 5 of 5 | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED (0/5) |
+| 4. fit cards preserve item details | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. search respects different price ceilings | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
 ```
+CRITERION 1 — All three tools complete — Try 1
+Source: agent.py::run_agent
+Tools: tools.py::search_listings, tools.py::suggest_outfit,
+       tools.py::create_fit_card
 
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[4] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[5] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Outfit 1: Y2K Streetwear Contrast - New Item: Y2K Baby Tee — Butterfly Print - Wardrobe Pieces: Baggy straight…
+      →    10 wardrobe item(s)
+[6] create_fit_card
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Just scored this adorable Y2K butterfly baby tee on Depop for only $18, and I am obsessed! I'm styling it with…
+
+Fit card:
+Just scored this adorable Y2K butterfly baby tee on Depop for only $18, and I am obsessed! I'm styling it with baggy dark-wash jeans, a black denim jacket, and chunky sneakers for the ultimate early-2000s streetwear vibe.
+
+
+CRITERION 2 — Empty search stops the agent — Try 1
+Source: agent.py::run_agent and agent.py::_nothing_found_message
+Report: run_eval.py::write_report
+
+- stopped early: yes — Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+- selected_item: (none)
+- search_results: 0
+
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[4] branch
+      →    search returned []: stopping before suggest_outfit
+
+
+CRITERION 3 — Selected item reaches outfit tool unchanged — Try 1
+Source: agent.py::run_agent
+
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      →    10 match(es)
+[4] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[5] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      out: Outfit 1: Y2K Streetwear Contrast - New Item: Y2K Baby Tee — Butterfly Print - Wardrobe Pieces: Baggy straight…
+      →    10 wardrobe item(s)
+
+Scoring note: Marked FAIL because the report did not capture the complete
+item received inside the outfit tool. Matching summaries do not verify
+that all details remained unchanged. No mismatch was demonstrated.
+
+
+CRITERION 4 — Fit card preserves item details — Try 1
+Source: tools.py::create_fit_card
+Report: run_eval.py::write_report
+
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+
+Fit card:
+Obsessed with this Y2K Baby Tee with the cutest butterfly print, and it's up on my Depop right now for just $18. I love styling it with baggy jeans and chunky sneakers for an effortless, authentic early 2000s streetwear vibe.
+
+
+CRITERION 5 — Returned listing respects the price ceiling — Try 1
+Source: agent.py::parse_query and agent.py::run_agent
+Search implementation: tools.py::search_listings, called through MCP
+
+[1] parse_query
+      in:  graphic tee under $18
+      out: dict with keys: description, size, max_price
+[2] MCP search succeeded
+      →    Search results received from the MCP tool.
+[3] search_listings
+      in:  dict with keys: description, size, max_price
+      out: 2 items: Y2K Baby Tee — Butterfly Print, Mesh Long-Sleeve Top — Black
+      →    2 match(es)
+[4] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
 ```
 
 ---

@@ -47,6 +47,38 @@ SCENARIOS = [
     # For a fit-card criterion, you probably want the SAME query listed more
     # than once, or several different items, depending on what your criterion
     # actually says.
+    {
+        "name": "selected item reaches outfit tool unchanged",
+        "query": "vintage graphic tee under $30",
+        "wardrobe": "example",
+        "criterion": 3,
+    },
+    {
+        "name": "fit cards preserve item details",
+        "query": "five different listing queries",
+        "queries_by_try": [
+            "butterfly baby tee under $30",
+            "bootleg tour tee under $30",
+            "mesh long sleeve top under $30",
+            "plaid flannel shirt under $30",
+            "silk slip dress under $30",
+        ],
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        "name": "search respects different price ceilings",
+        "query": "graphic tee with five different budgets",
+        "queries_by_try": [
+            "graphic tee under $18",
+            "graphic tee under $19",
+            "graphic tee under $24",
+            "graphic tee under $27",
+            "graphic tee under $30",
+        ],
+        "wardrobe": "example",
+        "criterion": 5,
+    },
 ]
 
 WARDROBES = ("example", "empty")

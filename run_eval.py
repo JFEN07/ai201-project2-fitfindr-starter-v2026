@@ -36,10 +36,14 @@ import traceback
 import config
 import scenarios as scenario_module
 
+import json
+from copy import deepcopy
+from unittest.mock import patch
+
 
 def run_once(scenario, use_trace=True):
     """One scenario, one try. Returns everything worth recording."""
-    from agent import run_agent
+    import agent
     from utils.data_loader import get_example_wardrobe, get_empty_wardrobe
     import trace as trace_module
 
@@ -50,15 +54,27 @@ def run_once(scenario, use_trace=True):
     if use_trace:
         trace_module.start_trace()
 
+
+    received_items = []
+    original_suggest_outfit = agent.suggest_outfit
+
+
+    def capture_suggest_outfit(new_item, wardrobe):
+        received_items.append(deepcopy(new_item))
+        return original_suggest_outfit(new_item, wardrobe)
+
     record = {"error": None, "session": None, "trace": "", "crashed": None}
     try:
-        record["session"] = run_agent(scenario["query"], wardrobe)
+        with patch.object(agent, "suggest_outfit", capture_suggest_outfit):
+            record["session"] = agent.run_agent(scenario["query"], wardrobe)
     except Exception as exc:  # noqa: BLE001 — a crash is a result worth logging
         record["crashed"] = f"{type(exc).__name__}: {exc}"
         record["traceback"] = traceback.format_exc()
 
     if use_trace:
         record["trace"] = trace_module.get_trace()
+
+    record["outfit_tool_received_items"] = received_items
 
     return record
 
@@ -95,7 +111,17 @@ def main():
 
         tries = []
         for attempt in range(1, args.tries + 1):
-            record = run_once(scenario)
+            # Makes use of the queries within the criterion
+            active_scenario = dict(scenario)
+
+            if scenario.get("queries_by_try"):
+                active_scenario["query"] = scenario["queries_by_try"][attempt - 1]
+
+            print(f"  try {attempt} query: {active_scenario['query']}")
+
+            record = run_once(active_scenario)
+            record["query"] = active_scenario["query"]
+
             tries.append(record)
 
             if record["crashed"]:
