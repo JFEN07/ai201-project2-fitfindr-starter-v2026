@@ -997,6 +997,13 @@ Cannot create a fit card because no outfit suggestion was provided.
 - *What came back:* ChatGPT identified places where the agent used local variables instead of reading stored session values. It also suggested temporarily printing the item received by the outfit tool.
 - *What I changed:* I updated the search, branch, and selection steps to read from the session. I added temporary prints and compared the received item with the selected item; both contained the same complete listing. After checking, I removed the temporary item prints and kept the complete-session display.
 
+**Moment 3 (Unit 4)**
+- *What I asked for:* I shared my evaluation report and asked whether it verified that the selected item reached the outfit tool unchanged.
+
+- *What came back:* ChatGPT identified that matching trace summaries could not prove every field was unchanged and suggested capturing the actual received dictionary.
+
+- *What I changed:* I used a capture wrapper in run_eval.py and added complete dictionary comparisons to the report. The after run recorded matching first results, selected items, and received arguments in all five tries.
+
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
@@ -1287,7 +1294,9 @@ What the service said: The model rejected your API key. Check GEMINI_API_KEY in 
 1 model calls this session
 ```
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
+**On the MCP move:** 
+I registered a typed search_listings wrapper in mcp_server.py that calls the existing implementation in tools.py. The agent already attempted MCP through its _search helper. Before registration, MCP failed and local search handled the requests; afterward, tool discovery listed search_listings and the evaluation traces reported MCP success. The matching query still selected the same item, and the impossible query still returned an empty list and stopped the agent.
+<!-- what changed in your code, and whether anything
 behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
 full. -->
@@ -1475,6 +1484,9 @@ The improvement made criterion 3 verifiable: the before report had 0/5 verified 
 
 ## What's Still Broken
 
+No acceptance criteria are missed in the after run. Criterion 3 is now verified in all five tries because the evaluator records the complete item received by the outfit tool and compares it with the first search result and selected item. This resolved missing evidence rather than an item-passing issue.
+
+Criterion 5 only requires a returned listing within budget. The report confirms the selected item’s price, but doesn't establish that every returned listing stays within the budget. A future stronger test would record every returned price and check each against the budget. This was not strengthened as I have run out of time.
 <!-- For each criterion still missed: what you'd do, and why you stopped where
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
